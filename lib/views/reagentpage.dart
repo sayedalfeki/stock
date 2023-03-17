@@ -29,6 +29,7 @@ class ReagentPage extends StatelessWidget {
             ReagentBloc model=ReagentBloc.instance(context);
             model.getReagent(reagentId);
             model.setLotsMap(reagentId);
+            model.isReagentCountLessThanMinimum(reagentId);
             return Scaffold(
               appBar: AppBar(title: const Text('reagent page'),
             actions: [
@@ -325,7 +326,7 @@ deleteReagent(ReagentBloc model,BuildContext context,int reagentId){
                       width: 100,
                       onPressed:(){
                      Navigator.pop(context);
-                    // model.isdeleted=false;
+
                   },text:'cancel',style: customStyle(
                       size: 20,
                       weight: FontWeight.normal)),
@@ -350,7 +351,7 @@ class LotContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var formKey=GlobalKey<FormState>() ;
-    TextEditingController quantController = TextEditingController();
+    TextEditingController quantityController = TextEditingController();
     TextEditingController dateController = TextEditingController(text: MyDate.dateToString(DateTime.now()));
     return BlocProvider(create:(context)=>ReagentBloc(),
     child: BlocConsumer<ReagentBloc,AppStates>(
@@ -392,7 +393,7 @@ class LotContainer extends StatelessWidget {
                     return null;
                   },
                   isNum: true,
-                  controller: quantController,
+                  controller: quantityController,
                   hint: 'enter quantity',
                     label: 'quantity',
                   ),
@@ -406,11 +407,11 @@ class LotContainer extends StatelessWidget {
                           lotId: lot.lotId,
                           lotProcessDate: dateController.text,
                           lotProcessDateQuantity: lot.lotQuantity,
-                          lotProcessAdding: int.parse(quantController.text)
+                          lotProcessAdding: int.parse(quantityController.text)
                       );
                       ReagentBloc.instance(context).addLotProcess(lotProcess);
                       int quantity = lot.lotQuantity +
-                          int.parse(quantController.text);
+                          int.parse(quantityController.text);
                       Lot lotUpdated = Lot(lotId: lot.lotId,
                           lotNumber: lot.lotNumber,
                           lotExpireDate: lot.lotExpireDate,
@@ -422,7 +423,7 @@ class LotContainer extends StatelessWidget {
                       Navigator.pop(context);
                     }
                     else {
-                      if (lot.lotQuantity < int.parse(quantController.text)) {
+                      if (lot.lotQuantity < int.parse(quantityController.text)) {
                         viewSnackBar(context, const Text(
                             'this quantity greater than lot quantity'));
                       }
@@ -432,11 +433,11 @@ class LotContainer extends StatelessWidget {
                             lotProcessDate: dateController.text,
                             lotProcessDateQuantity: lot.lotQuantity,
                             lotProcessSubtracting: int.parse(
-                                quantController.text)
+                                quantityController.text)
                         );
                         ReagentBloc.instance(context).addLotProcess(lotProcess);
                         int quantity = lot.lotQuantity - int.parse(
-                            quantController.text);
+                            quantityController.text);
                         Lot lotUpdated = Lot(lotId: lot.lotId,
                             lotNumber: lot.lotNumber,
                             lotExpireDate: lot.lotExpireDate,
